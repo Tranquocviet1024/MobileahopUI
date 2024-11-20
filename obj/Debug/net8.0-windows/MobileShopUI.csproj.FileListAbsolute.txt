@@ -54,3 +54,4 @@ C:\Users\pc\MobileShopUI\bin\Debug\net8.0-windows\runtimes\unix\lib\net8.0\Syste
 C:\Users\pc\MobileShopUI\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.Data.SqlClient.dll
 C:\Users\pc\MobileShopUI\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.Runtime.Caching.dll
 C:\Users\pc\MobileShopUI\obj\Debug\net8.0-windows\MobileSh.CFCB7E99.Up2Date
+C:\Users\pc\MobileShopUI\obj\Debug\net8.0-windows\MobileShopUI.sourcelink.json

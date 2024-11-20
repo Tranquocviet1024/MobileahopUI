@@ -35,16 +35,15 @@ namespace MobileShopUI
                 Location = new System.Drawing.Point(20, 20),
                 Width = 850,
                 Height = 300,
-                AllowUserToAddRows = false
+                AllowUserToAddRows = false,
+                ReadOnly = true,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect
             };
             LoadDonHang(); // Load dữ liệu lên DataGridView
             this.Controls.Add(dgvDonHang);
 
             // Labels và TextBox để nhập thông tin
-            Label lblId = new Label { Text = "ID:", Location = new System.Drawing.Point(20, 350), AutoSize = true };
-            this.Controls.Add(lblId);
-            txtId.Location = new System.Drawing.Point(120, 350);
-            this.Controls.Add(txtId);
+            
 
             Label lblKhachHangId = new Label { Text = "Khách hàng ID:", Location = new System.Drawing.Point(20, 390), AutoSize = true };
             this.Controls.Add(lblKhachHangId);
@@ -113,7 +112,6 @@ namespace MobileShopUI
 
         private void LoadDonHang()
         {
-            // Kết nối cơ sở dữ liệu và load danh sách đơn hàng
             KetNoi db = new KetNoi();
             string query = "SELECT * FROM DonHang";
             var ds = db.LayDuLieu(query);
@@ -126,33 +124,48 @@ namespace MobileShopUI
 
         private void BtnThem_Click(object? sender, EventArgs e)
         {
-            string id = txtId.Text.Trim();
-            string khachHangId = txtKhachHangId.Text.Trim();
-            string sanPhamId = txtSanPhamId.Text.Trim();
-            string soLuong = txtSoLuong.Text.Trim();
-            string ngayMua = dtpNgayMua.Value.ToString("yyyy-MM-dd");
-
-            // Kiểm tra dữ liệu nhập
-            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(khachHangId) || string.IsNullOrEmpty(sanPhamId) || string.IsNullOrEmpty(soLuong))
+            try
             {
-                MessageBox.Show("Vui lòng nhập đầy đủ thông tin!");
-                return;
+                // Lấy dữ liệu từ các TextBox
+                string khachHangId = txtKhachHangId.Text.Trim();
+                string sanPhamId = txtSanPhamId.Text.Trim();
+                string soLuong = txtSoLuong.Text.Trim();
+                string ngayMua = dtpNgayMua.Value.ToString("yyyy-MM-dd");
+
+                // Kiểm tra dữ liệu nhập
+                if (string.IsNullOrEmpty(khachHangId) || string.IsNullOrEmpty(sanPhamId) || string.IsNullOrEmpty(soLuong))
+                {
+                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin!");
+                    return;
+                }
+
+                // Thực hiện thêm dữ liệu vào cơ sở dữ liệu
+                KetNoi db = new KetNoi();
+                string query = $"INSERT INTO DonHang (khachhangid, sanphamid, soluong, ngaymua) VALUES (@khachHangId, @sanPhamId, @soLuong, @ngayMua)";
+                var parameters = new Dictionary<string, object>
+        {
+            { "@khachHangId", khachHangId },
+            { "@sanPhamId", sanPhamId },
+            { "@soLuong", soLuong },
+            { "@ngayMua", ngayMua }
+        };
+
+                if (db.ThucThiCoThamSo(query, parameters))
+                {
+                    MessageBox.Show("Thêm đơn hàng thành công!");
+                    LoadDonHang(); // Cập nhật lại danh sách
+                }
+                else
+                {
+                    MessageBox.Show("Thêm đơn hàng thất bại!");
+                }
             }
-
-            // Thêm vào cơ sở dữ liệu
-            KetNoi db = new KetNoi();
-            string query = $"INSERT INTO DonHang (id, khachhangid, sanphamid, soluong, ngaymua) VALUES ({id}, {khachHangId}, {sanPhamId}, {soLuong}, '{ngayMua}')";
-
-            if (db.ThucThi(query))
+            catch (Exception ex)
             {
-                MessageBox.Show("Thêm đơn hàng thành công!");
-                LoadDonHang(); // Cập nhật lại danh sách
-            }
-            else
-            {
-                MessageBox.Show("Thêm đơn hàng thất bại!");
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
+
 
         private void BtnSua_Click(object? sender, EventArgs e)
         {
@@ -161,39 +174,61 @@ namespace MobileShopUI
 
         private void BtnXoa_Click(object? sender, EventArgs e)
         {
-            if (dgvDonHang.CurrentRow != null)
+            try
             {
-                string? donHangId = dgvDonHang.CurrentRow.Cells["id"]?.Value?.ToString();
-                KetNoi db = new KetNoi();
-                string query = $"DELETE FROM DonHang WHERE id = {donHangId}";
+                if (dgvDonHang.CurrentRow != null)
+                {
+                    string? donHangId = dgvDonHang.CurrentRow.Cells["id"]?.Value?.ToString();
+                    if (string.IsNullOrEmpty(donHangId))
+                    {
+                        MessageBox.Show("Không thể xác định ID đơn hàng để xóa!");
+                        return;
+                    }
 
-                if (db.ThucThi(query))
-                {
-                    MessageBox.Show("Xóa đơn hàng thành công!");
-                    LoadDonHang();
+                    KetNoi db = new KetNoi();
+                    string query = $"DELETE FROM DonHang WHERE id = @id";
+                    var parameters = new Dictionary<string, object> { { "@id", donHangId } };
+
+                    if (db.ThucThiCoThamSo(query, parameters))
+                    {
+                        MessageBox.Show("Xóa đơn hàng thành công!");
+                        LoadDonHang();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Xóa đơn hàng thất bại!");
+                    }
                 }
-                else
-                {
-                    MessageBox.Show("Xóa đơn hàng thất bại!");
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
         private void BtnTimKiem_Click(object? sender, EventArgs e)
         {
-            string keyword = txtTimKiem.Text.Trim();
-            KetNoi db = new KetNoi();
-            string query = $"SELECT * FROM DonHang WHERE khachhangid LIKE '%{keyword}%'";
-
-            var ds = db.LayDuLieu(query);
-
-            if (ds != null && ds.Tables.Count > 0)
+            try
             {
-                dgvDonHang.DataSource = ds.Tables[0];
+                string keyword = txtTimKiem.Text.Trim();
+                KetNoi db = new KetNoi();
+                string query = $"SELECT * FROM DonHang WHERE khachhangid LIKE @keyword";
+                var parameters = new Dictionary<string, object> { { "@keyword", $"%{keyword}%" } };
+
+                var ds = db.LayDuLieuCoThamSo(query, parameters);
+
+                if (ds != null && ds.Tables.Count > 0)
+                {
+                    dgvDonHang.DataSource = ds.Tables[0];
+                }
+                else
+                {
+                    MessageBox.Show("Không tìm thấy kết quả!");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Không tìm thấy kết quả!");
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
     }
