@@ -43,7 +43,7 @@ namespace MobileShopUI
             this.Controls.Add(dgvDonHang);
 
             // Labels và TextBox để nhập thông tin
-            
+
 
             Label lblKhachHangId = new Label { Text = "Khách hàng ID:", Location = new System.Drawing.Point(20, 390), AutoSize = true };
             this.Controls.Add(lblKhachHangId);
@@ -169,8 +169,65 @@ namespace MobileShopUI
 
         private void BtnSua_Click(object? sender, EventArgs e)
         {
-            MessageBox.Show("Chức năng Sửa đang được xây dựng!");
+            try
+            {
+                // Kiểm tra xem có dòng nào được chọn không
+                if (dgvDonHang.CurrentRow == null)
+                {
+                    MessageBox.Show("Vui lòng chọn một đơn hàng để sửa!");
+                    return;
+                }
+
+                // Lấy ID của đơn hàng được chọn
+                string? donHangId = dgvDonHang.CurrentRow.Cells["id"]?.Value?.ToString();
+
+                if (string.IsNullOrEmpty(donHangId))
+                {
+                    MessageBox.Show("Không thể xác định ID đơn hàng!");
+                    return;
+                }
+
+                // Lấy thông tin từ các TextBox
+                string khachHangId = txtKhachHangId.Text.Trim();
+                string sanPhamId = txtSanPhamId.Text.Trim();
+                string soLuong = txtSoLuong.Text.Trim();
+                string ngayMua = dtpNgayMua.Value.ToString("yyyy-MM-dd");
+
+                // Kiểm tra dữ liệu nhập
+                if (string.IsNullOrEmpty(khachHangId) || string.IsNullOrEmpty(sanPhamId) || string.IsNullOrEmpty(soLuong))
+                {
+                    MessageBox.Show("Vui lòng nhập đầy đủ thông tin!");
+                    return;
+                }
+
+                // Thực hiện cập nhật dữ liệu
+                KetNoi db = new KetNoi();
+                string query = $"UPDATE DonHang SET khachhangid = @khachHangId, sanphamid = @sanPhamId, soluong = @soLuong, ngaymua = @ngayMua WHERE id = @id";
+                var parameters = new Dictionary<string, object>
+        {
+            { "@id", donHangId },
+            { "@khachHangId", khachHangId },
+            { "@sanPhamId", sanPhamId },
+            { "@soLuong", soLuong },
+            { "@ngayMua", ngayMua }
+        };
+
+                if (db.ThucThiCoThamSo(query, parameters))
+                {
+                    MessageBox.Show("Sửa đơn hàng thành công!");
+                    LoadDonHang(); // Cập nhật lại danh sách đơn hàng
+                }
+                else
+                {
+                    MessageBox.Show("Sửa đơn hàng thất bại!");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message);
+            }
         }
+
 
         private void BtnXoa_Click(object? sender, EventArgs e)
         {

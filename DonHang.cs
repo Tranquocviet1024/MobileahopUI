@@ -10,9 +10,9 @@ namespace MobileShopUI
 
         public DonHang() { }
 
-        public DonHang( int khachHangId, int sanPhamId, int soLuong, DateTime ngayMua)
+        public DonHang( int id,int khachHangId, int sanPhamId, int soLuong, DateTime ngayMua)
         {
-            
+            Id=id;
             KhachHangId = khachHangId;
             SanPhamId = sanPhamId;
             SoLuong = soLuong;

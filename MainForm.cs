@@ -9,6 +9,7 @@ namespace MobileShopUI
         private ToolStripMenuItem menuSanPham=new ToolStripMenuItem();
         private ToolStripMenuItem menuKhachHang=new ToolStripMenuItem();
         private ToolStripMenuItem menuDonHang=new ToolStripMenuItem();
+        private ToolStripMenuItem thongkeDonHang=new ToolStripMenuItem();
 
         public MainForm()
         {
@@ -40,6 +41,13 @@ namespace MobileShopUI
             };
             menuStrip.Items.Add(menuKhachHang);
 
+            // Thống kê doanh thu
+            thongkeDonHang =new ToolStripMenuItem("Thống kê doanh thu");
+            thongkeDonHang.Click +=(s,e) =>{
+                ThongKeForm thongKeForm = new ThongKeForm();
+                thongKeForm.Show();
+            };
+            menuStrip.Items.Add(thongkeDonHang);
             // Đơn hàng
             menuDonHang = new ToolStripMenuItem("Đơn hàng");
             menuDonHang.Click += (s, e) =>
